@@ -1,0 +1,7 @@
+{
+  "name": "Nutri-Coach Pro",
+  "description": "A high-end supplement assistant with verified scientific knowledge management for athletes and professional advisors.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
