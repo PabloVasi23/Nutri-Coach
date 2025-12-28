@@ -2,13 +2,14 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { UserProfile, Language, DietStyle, ArgentineRegion } from "../types";
 
-// Always use const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const safeJsonParse = (str: string | undefined, fallback: any) => {
   if (!str) return fallback;
   try {
-    return JSON.parse(str.trim());
+    // Eliminar posibles bloques de código Markdown que la IA a veces incluye
+    const cleanStr = str.replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(cleanStr);
   } catch (e) {
     console.error("JSON Parse Error:", e);
     return fallback;
@@ -16,7 +17,6 @@ const safeJsonParse = (str: string | undefined, fallback: any) => {
 };
 
 export const geminiService = {
-  // Analyze physique from images using Gemini 3 Pro for high-quality assessment
   async analyzePhysique(images64: string[], goal: string, dietStyle: DietStyle, region: ArgentineRegion, language: Language) {
     const imageParts = images64.map(img => ({
       inlineData: { data: img, mimeType: 'image/jpeg' }
@@ -31,7 +31,7 @@ export const geminiService = {
 
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
+        model: 'gemini-3-flash-preview', // Flash es más rápido para evitar timeouts en onboarding
         contents: {
           parts: [...imageParts, { text: prompt }]
         },
@@ -75,15 +75,31 @@ export const geminiService = {
           }
         }
       });
-      // response.text is a property, not a method
-      return safeJsonParse(response.text, {});
+      return safeJsonParse(response.text, { 
+        assessment: "Análisis no disponible", 
+        estimatedBodyFat: "--", 
+        strengths: [], 
+        focusAreas: [], 
+        beginnerTips: "", 
+        aestheticExercises: [], 
+        suggestedDiet: { breakfast: "", lunch: "", snack: "", dinner: "", regionalNotes: "" },
+        postureCorrection: ""
+      });
     } catch (err) {
       console.error(err);
-      return {};
+      return { 
+        assessment: "Error en el análisis de imagen.", 
+        estimatedBodyFat: "--", 
+        strengths: [], 
+        focusAreas: [], 
+        beginnerTips: "", 
+        aestheticExercises: [], 
+        suggestedDiet: { breakfast: "Pendiente", lunch: "Pendiente", snack: "Pendiente", dinner: "Pendiente", regionalNotes: "" },
+        postureCorrection: ""
+      };
     }
   },
 
-  // Analyze supplement bottles using Gemini 3 Flash
   async analyzeSupplementKit(image64: string, profile: UserProfile | null) {
     const context = profile 
       ? `Explica a ${profile.name} cómo tomarlos y si son lógicos para su objetivo de ${profile.goal}. Idioma: ${profile.language}.`
@@ -128,9 +144,8 @@ export const geminiService = {
     }
   },
 
-  // Interactive chat with a coach persona
   async chatWithCoach(message: string, history: any[], profile: UserProfile) {
-    const systemPrompt = `Eres un Coach Humano de Nutri-Coach Pro. Usuario: ${profile.name}. Objetivo: ${profile.goal}. Idioma: ${profile.language}. Responde de forma motivadora y directa.`;
+    const systemPrompt = `Eres un Coach Humano de Nutri-Coach Pro. Usuario: ${profile.name}. Objetivo: ${profile.goal}. Idioma: ${profile.language}. Responde de forma motivadora y directa. No uses markdown excesivo.`;
     try {
       const chat = ai.chats.create({
         model: 'gemini-3-flash-preview',
@@ -143,9 +158,8 @@ export const geminiService = {
     }
   },
 
-  // Generate a customized supplement protocol based on profile
   async generateProtocol(profile: UserProfile) {
-    const prompt = `Genera un protocolo de suplementos para ${profile.name} (${profile.goal}). Idioma: ${profile.language}. JSON array de objetos.`;
+    const prompt = `Genera un protocolo de suplementos científicos para ${profile.name} con objetivo ${profile.goal}. Idioma: ${profile.language}. Responde solo con un array JSON de objetos.`;
     try {
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -174,7 +188,6 @@ export const geminiService = {
     }
   },
 
-  // Fix: Missing verifyDocument method required by AdminVerification.tsx
   async verifyDocument(base64: string, mimeType: string) {
     const prompt = `Analiza este documento científico o etiqueta de suplemento para verificar la evidencia. Extrae la información en JSON.`;
     try {
@@ -194,7 +207,7 @@ export const geminiService = {
               title: { type: Type.STRING },
               source: { type: Type.STRING },
               year: { type: Type.STRING },
-              evidenceLevel: { type: Type.STRING, description: 'A, B, C, or D' },
+              evidenceLevel: { type: Type.STRING },
               summary: { type: Type.STRING },
               claims: { type: Type.ARRAY, items: { type: Type.STRING } }
             },

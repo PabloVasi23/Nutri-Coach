@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Card, Badge, Button } from '../components/UI.tsx';
 import { UserProfile, Supplement } from '../types.ts';
@@ -22,9 +23,10 @@ const UserDashboard: React.FC<Props> = ({ profile }) => {
     const fetchProtocol = async () => {
       try {
         const data = await geminiService.generateProtocol(profile);
-        setProtocol(data);
+        setProtocol(data || []);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching protocol:", err);
+        setProtocol([]);
       } finally {
         setLoading(false);
       }
@@ -44,15 +46,15 @@ OBJETIVO: ${profile.goal}
 =========================================
 
 1. STACK RECOMENDADO
-${protocol.map(s => `• ${s.name}: ${s.dose} (${s.timing})`).join('\n')}
+${(protocol || []).map(s => `• ${s.name}: ${s.dose} (${s.timing})`).join('\n')}
 
 2. ENTRENAMIENTO
-${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.sets} - Foco: ${ex.focus}`).join('\n')}
+${(profile.physiqueAnalysis?.aestheticExercises || []).map(ex => `• ${ex.name}: ${ex.sets} - Foco: ${ex.focus}`).join('\n')}
 
 3. NUTRICIÓN
-- Desayuno: ${profile.physiqueAnalysis?.suggestedDiet?.breakfast}
-- Almuerzo: ${profile.physiqueAnalysis?.suggestedDiet?.lunch}
-- Cena: ${profile.physiqueAnalysis?.suggestedDiet?.dinner}
+- Desayuno: ${profile.physiqueAnalysis?.suggestedDiet?.breakfast || 'N/A'}
+- Almuerzo: ${profile.physiqueAnalysis?.suggestedDiet?.lunch || 'N/A'}
+- Cena: ${profile.physiqueAnalysis?.suggestedDiet?.dinner || 'N/A'}
 
 =========================================
     `;
@@ -65,15 +67,16 @@ ${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.s
   };
 
   const handleWhatsAppKit = () => {
-    const message = `Hola! Soy ${profile.name} y quiero mi kit personalizado: ${protocol.map(s => s.name).join(', ')}.`;
+    const message = `Hola! Soy ${profile.name} y quiero mi kit personalizado: ${(protocol || []).map(s => s.name).join(', ')}.`;
     window.open(`https://wa.me/3816284867?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   if (loading) {
     return (
-      <div className="d-flex flex-column align-items-center justify-content-center py-5 text-center">
-        <div className="spinner-border text-info mb-3" role="status"></div>
-        <div className="text-tactical text-info small fw-bold tracking-widest uppercase">Sincronizando Protocolo Alpha...</div>
+      <div className="d-flex flex-column align-items-center justify-content-center py-5 text-center min-vh-100">
+        <div className="spinner-border text-info mb-3" style={{width: '3rem', height: '3rem'}} role="status"></div>
+        <div className="text-tactical text-info h5 fw-black tracking-widest uppercase animate-pulse">Sincronizando Protocolo Alpha...</div>
+        <p className="text-dim small mt-2 opacity-50 uppercase">Calculando biodisponibilidad de nutrientes</p>
       </div>
     );
   }
@@ -107,8 +110,12 @@ ${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.s
 
       <div className="row g-4">
         <div className="col-12 col-lg-5">
-          <div className="position-relative overflow-hidden rounded-5 shadow-lg mb-4" style={{ height: '450px', border: '1px solid var(--border-glass)' }}>
-            <img src={profile.avatarImages[0]} className="w-100 h-100 object-fit-cover" alt="Avatar" />
+          <div className="position-relative overflow-hidden rounded-5 shadow-lg mb-4" style={{ height: '450px', border: '1px solid var(--border-glass)', background: '#000' }}>
+            {profile.avatarImages?.[0] ? (
+              <img src={profile.avatarImages[0]} className="w-100 h-100 object-fit-cover" alt="Avatar" />
+            ) : (
+              <div className="w-100 h-100 d-flex align-items-center justify-content-center text-dim">Sin Imagen</div>
+            )}
             <div className="position-absolute top-0 start-0 p-4">
               <div className="bg-black bg-opacity-70 px-3 py-1 rounded-pill border border-info border-opacity-30 d-flex align-items-center gap-2">
                 <Sparkles size={14} className="text-info" />
@@ -116,7 +123,7 @@ ${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.s
               </div>
             </div>
             <div className="position-absolute bottom-0 start-0 w-100 p-4 bg-gradient-to-t from-black to-transparent">
-              <h2 className="display-4 fw-black text-white text-tactical mb-0">{profile.physiqueAnalysis?.estimatedBodyFat}%</h2>
+              <h2 className="display-4 fw-black text-white text-tactical mb-0">{profile.physiqueAnalysis?.estimatedBodyFat || '--'}%</h2>
               <p className="text-info fw-black small uppercase mb-0">Estimación de Grasa Corporal</p>
             </div>
           </div>
@@ -127,7 +134,7 @@ ${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.s
                 <h6 className="fw-black mb-0 uppercase tracking-widest small">VALORACIÓN DEL COACH</h6>
              </div>
              <p className="text-coach-assessment small italic lh-base mb-0 fw-medium">
-               "{profile.physiqueAnalysis?.assessment}"
+               "{profile.physiqueAnalysis?.assessment || 'No se pudo generar valoración.'}"
              </p>
           </div>
         </div>
@@ -143,7 +150,7 @@ ${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.s
             </div>
             
             <div className="row g-2">
-              {protocol.map((supp, i) => (
+              {protocol.length > 0 ? protocol.map((supp, i) => (
                 <div key={i} className="col-12 col-sm-6">
                   <div className="exercise-row h-100 m-0">
                     <div className="d-flex justify-content-between align-items-start mb-2">
@@ -154,7 +161,9 @@ ${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.s
                     <div className="text-white small opacity-90" style={{fontSize: '0.6rem'}}>{supp.timing}</div>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="col-12 text-center py-4 opacity-50">Cargando protocolo inteligente...</div>
+              )}
             </div>
           </div>
 
@@ -172,7 +181,7 @@ ${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.s
                       <div key={m} className="exercise-row">
                          <div className="text-info fw-black uppercase mb-1" style={{fontSize: '0.6rem'}}>{m}</div>
                          <div className="text-white small fw-medium" style={{fontSize: '0.75rem'}}>
-                            {mealContent}
+                            {mealContent || 'Planificando...'}
                          </div>
                       </div>
                     );
@@ -186,7 +195,7 @@ ${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.s
                      <TrendingUp size={18} className="text-info" />
                      <h4 className="small text-white fw-black uppercase mb-0">RUTINA ESTÉTICA</h4>
                   </div>
-                  {profile.physiqueAnalysis?.aestheticExercises.map((ex, i) => (
+                  {(profile.physiqueAnalysis?.aestheticExercises || []).length > 0 ? profile.physiqueAnalysis?.aestheticExercises.map((ex, i) => (
                     <div key={i} className="exercise-row">
                        <div className="d-flex justify-content-between align-items-center">
                           <div>
@@ -196,7 +205,9 @@ ${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.s
                           <div className="text-white fw-black h5 mb-0">{ex.sets}</div>
                        </div>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-center py-4 opacity-50 small">Generando rutina personalizada...</div>
+                  )}
                </div>
             </div>
           </div>
