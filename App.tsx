@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, UserProfile } from './types';
-import Onboarding from './views/Onboarding';
-import UserDashboard from './views/UserDashboard';
-import QuickScan from './views/QuickScan';
+import { View, UserProfile } from './types.ts';
+import Onboarding from './views/Onboarding.tsx';
+import UserDashboard from './views/UserDashboard.tsx';
+import QuickScan from './views/QuickScan.tsx';
 import { Shield, Camera, ChevronRight } from 'lucide-react';
-import { Badge } from './components/UI';
+import { Badge } from './components/UI.tsx';
 
 const App: React.FC = () => {
   const [view, setView] = useState<View>('landing');
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
-    // Forzar modo nocturno siempre
     document.documentElement.setAttribute('data-theme', 'dark');
   }, []);
 
@@ -54,7 +53,6 @@ const App: React.FC = () => {
           <div className="row justify-content-center text-center py-5">
             <div className="col-lg-9 col-xl-8">
               <Badge className="mb-4">SYSTEM READY v3.2</Badge>
-              {/* CAMBIO DE TÍTULO A BODY SCAN IA COACH */}
               <h1 className="display-1 hero-title mb-4">
                 BODY SCAN <span>IA COACH</span>
               </h1>

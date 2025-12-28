@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Badge, Button } from '../components/UI';
-import { UserProfile, Supplement } from '../types';
-import { geminiService } from '../services/gemini';
-import ChatWidget from '../components/ChatWidget';
+import { Card, Badge, Button } from '../components/UI.tsx';
+import { UserProfile, Supplement } from '../types.ts';
+import { geminiService } from '../services/gemini.ts';
+import ChatWidget from '../components/ChatWidget.tsx';
 import { 
   Activity, Zap, ShoppingCart, Utensils, 
   TrendingUp, FileText, Target, MapPin, Sparkles
@@ -80,8 +80,6 @@ ${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.s
 
   return (
     <div className="container py-3 animate-in fade-in">
-      
-      {/* HEADER HUD */}
       <div className="row g-4 mb-5">
         <div className="col-12 col-md-8">
            <div className="d-flex align-items-center gap-2 mb-2">
@@ -108,7 +106,6 @@ ${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.s
       </div>
 
       <div className="row g-4">
-        {/* COLUMNA IZQUIERDA: VISION AI */}
         <div className="col-12 col-lg-5">
           <div className="position-relative overflow-hidden rounded-5 shadow-lg mb-4" style={{ height: '450px', border: '1px solid var(--border-glass)' }}>
             <img src={profile.avatarImages[0]} className="w-100 h-100 object-fit-cover" alt="Avatar" />
@@ -135,9 +132,7 @@ ${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.s
           </div>
         </div>
 
-        {/* COLUMNA DERECHA: PROTOCOLOS */}
         <div className="col-12 col-lg-7">
-          {/* SUPLEMENTOS - TEXTO MÁS CLARO EN DOSIS Y TIMING */}
           <div className="onboarding-card p-4 mb-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
               <div className="d-flex align-items-center gap-2">
@@ -155,7 +150,6 @@ ${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.s
                       <h4 className="text-white fw-black uppercase mb-0" style={{fontSize: '0.8rem'}}>{supp.name}</h4>
                       <span className="badge-tactical" style={{fontSize: '0.55rem', padding: '2px 8px'}}>L-{supp.evidenceLevel}</span>
                     </div>
-                    {/* CAMBIO DE COLOR A BLANCO BRILLANTE PARA DOSIS Y TIMING */}
                     <div className="text-white fw-bold mb-1" style={{fontSize: '0.65rem'}}>Dosis: {supp.dose}</div>
                     <div className="text-white small opacity-90" style={{fontSize: '0.6rem'}}>{supp.timing}</div>
                   </div>
@@ -165,7 +159,6 @@ ${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.s
           </div>
 
           <div className="row g-4">
-            {/* NUTRICION */}
             <div className="col-12 col-md-6">
                <div className="onboarding-card p-4 h-100">
                   <div className="d-flex align-items-center gap-2 mb-4">
@@ -187,7 +180,6 @@ ${profile.physiqueAnalysis?.aestheticExercises.map(ex => `• ${ex.name}: ${ex.s
                </div>
             </div>
 
-            {/* ENTRENAMIENTO */}
             <div className="col-12 col-md-6">
                <div className="onboarding-card p-4 h-100">
                   <div className="d-flex align-items-center gap-2 mb-4">
