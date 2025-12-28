@@ -1,9 +1,11 @@
-
-import React, { useState } from 'react';
-import { Button, Card, Input } from '../components/UI';
+import React, { useState, useEffect } from 'react';
+import { Button, Input, Badge } from '../components/UI';
 import { UserProfile, UserGoal, Language, DietStyle, ArgentineRegion } from '../types';
 import { geminiService } from '../services/gemini';
-import { Target, Activity, ChevronRight, ChevronLeft, Languages, Scan, User, Plus, Trash2, MapPin, Utensils, Loader2 } from 'lucide-react';
+import { 
+  ChevronRight, ChevronLeft, 
+  Trash2, Camera
+} from 'lucide-react';
 
 interface Props {
   onComplete: (profile: UserProfile) => void;
@@ -13,6 +15,8 @@ interface Props {
 const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [randomName, setRandomName] = useState('Juan Pérez');
+  
   const [profile, setProfile] = useState<UserProfile>({
     name: '',
     age: 25,
@@ -25,6 +29,11 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
     region: ArgentineRegion.PAMPA,
     avatarImages: []
   });
+
+  useEffect(() => {
+    const names = ['Juan Pérez', 'Carlos Gómez', 'Luis Rodríguez', 'Ana Martínez', 'Sofía López', 'Marcos Vera', 'Diego Sosa'];
+    setRandomName(names[Math.floor(Math.random() * names.length)]);
+  }, []);
 
   const next = () => setStep(s => s + 1);
   const prev = () => setStep(s => Math.max(0, s - 1));
@@ -43,7 +52,7 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
       Promise.all(readers).then(images => {
         setProfile(p => ({
           ...p,
-          avatarImages: [...p.avatarImages, ...images].slice(0, 4)
+          avatarImages: [...p.avatarImages, ...images].slice(0, 3)
         }));
       });
     }
@@ -77,190 +86,227 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
     }
   };
 
-  const languageOptions = Object.values(Language);
-
   return (
-    <div className="max-w-xl mx-auto py-16 px-4 animate-in fade-in duration-700">
-      {loading ? (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <div className="w-24 h-24 border-4 border-cyan-500/10 border-t-cyan-500 rounded-full animate-spin mb-8 shadow-[0_0_40px_rgba(34,211,238,0.2)]"></div>
-          <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter">Bio-Análisis en Curso</h2>
-          <p className="text-slate-500 text-sm mt-4 font-medium max-w-xs mx-auto">
-            Procesando métricas corporales y optimizando tu nutrición regional...
-          </p>
-        </div>
-      ) : (
-        <>
-          <div className="mb-12 flex items-center justify-between gap-4">
-             <button onClick={step === 0 ? onCancel : prev} className="p-3 bg-slate-900 rounded-xl text-slate-500 hover:text-white transition-all border border-slate-800">
-                <ChevronLeft size={20} />
-             </button>
-             <div className="flex-grow flex gap-2">
-                {[0, 1, 2, 3, 4, 5, 6].map(i => (
-                  <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${step >= i ? 'bg-cyan-500 shadow-[0_0_15px_rgba(34,211,238,0.4)]' : 'bg-slate-800'}`} />
-                ))}
-             </div>
-          </div>
+    <div className="container py-3">
+      <div className="row justify-content-center">
+        <div className="col-12 col-md-10 col-lg-8">
+          
+          {loading ? (
+            <div className="text-center py-5">
+              <div className="spinner-grow text-info mb-4" style={{width: '3.5rem', height: '3.5rem'}} role="status"></div>
+              <h2 className="text-tactical text-white h3 mb-3 fw-black italic uppercase">Sincro Bio-Data...</h2>
+              <p className="text-dim small text-uppercase tracking-widest opacity-60">IA analizando simetría muscular</p>
+            </div>
+          ) : (
+            <div className="animate-in fade-in">
+              {/* INDICADOR DE PROGRESO */}
+              <div className="mb-4 d-flex align-items-center gap-2 mx-auto" style={{ maxWidth: '400px' }}>
+                <button 
+                  onClick={step === 0 ? onCancel : prev} 
+                  className="p-2 bg-transparent border-0"
+                  style={{color: 'var(--text-main)'}}
+                >
+                  <ChevronLeft size={24} />
+                </button>
+                <div className="flex-grow-1 d-flex gap-2">
+                  {[0, 1, 2, 3, 4, 5, 6].map(i => (
+                    <div 
+                      key={i} 
+                      className="rounded-pill" 
+                      style={{
+                        height: '6px', 
+                        flexGrow: 1, 
+                        backgroundColor: step >= i ? 'var(--cyan-primary)' : 'var(--border-glass)',
+                        boxShadow: step >= i ? '0 0 10px var(--cyan-glow)' : 'none',
+                        transition: 'all 0.3s ease'
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
 
-          {step === 0 && (
-            <Card className="animate-in slide-in-from-bottom-8">
-               <div className="flex items-center gap-2 mb-4 text-cyan-400">
-                <Languages size={20} />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em]">Protocol Selection</span>
-              </div>
-              <h2 className="text-4xl font-black mb-10 text-white tracking-tighter uppercase italic">Idioma del Coach</h2>
-              <div className="grid gap-4">
-                {languageOptions.map((lang) => (
-                  <button 
-                    key={lang} 
-                    onClick={() => setProfile({...profile, language: lang})} 
-                    className={`p-5 rounded-2xl border-2 text-left transition-all font-black uppercase tracking-widest text-[11px] ${profile.language === lang ? 'border-cyan-500 bg-cyan-500/10 text-white shadow-[0_0_20px_rgba(34,211,238,0.2)]' : 'border-slate-800 text-slate-500 hover:border-slate-700'}`}
-                  >
-                    {lang}
-                  </button>
-                ))}
-              </div>
-              <Button variant="cyan" className="w-full mt-10 py-5" onClick={next}>Continuar <ChevronRight size={18} /></Button>
-            </Card>
-          )}
-
-          {step === 1 && (
-            <Card className="animate-in slide-in-from-bottom-8">
-              <div className="flex items-center gap-2 mb-4 text-cyan-400">
-                <User size={20} />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em]">Personal Identity</span>
-              </div>
-              <h2 className="text-4xl font-black mb-10 text-white tracking-tighter uppercase italic">Identidad</h2>
-              <Input 
-                label="Nombre y Apellido" 
-                value={profile.name} 
-                onChange={v => setProfile({...profile, name: v})} 
-                placeholder="Marco Aurelio" 
-              />
-              <Button 
-                variant="cyan" 
-                className="w-full mt-10 py-5" 
-                onClick={next}
-                disabled={!profile.name.trim()}
-              >
-                Siguiente Paso <ChevronRight size={18} />
-              </Button>
-            </Card>
-          )}
-
-          {step === 2 && (
-            <Card className="animate-in slide-in-from-bottom-8">
-              <div className="flex items-center gap-2 mb-4 text-indigo-400">
-                <Target size={20} />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em]">Objective</span>
-              </div>
-              <h2 className="text-4xl font-black mb-8 text-white tracking-tighter uppercase italic">Tu Meta</h2>
-              <div className="grid gap-4">
-                {Object.values(UserGoal).map(goal => (
-                  <button 
-                    key={goal} 
-                    onClick={() => setProfile({...profile, goal})} 
-                    className={`p-5 rounded-2xl border-2 text-left transition-all font-black uppercase tracking-widest text-[11px] ${profile.goal === goal ? 'border-indigo-500 bg-indigo-500/10 text-white shadow-[0_0_20px_rgba(99,102,241,0.2)]' : 'border-slate-800 text-slate-500 hover:border-slate-700'}`}
-                  >
-                    {goal}
-                  </button>
-                ))}
-              </div>
-              <Button variant="indigo" className="w-full mt-10 py-5" onClick={next}>Confirmar Meta</Button>
-            </Card>
-          )}
-
-          {step === 3 && (
-            <Card className="animate-in slide-in-from-bottom-8">
-              <div className="flex items-center gap-2 mb-4 text-emerald-400">
-                <Utensils size={20} />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em]">Nutrition Style</span>
-              </div>
-              <h2 className="text-4xl font-black mb-8 text-white tracking-tighter uppercase italic">Preferencia</h2>
-              <div className="grid gap-4">
-                {Object.values(DietStyle).map(style => (
-                  <button 
-                    key={style} 
-                    onClick={() => setProfile({...profile, dietStyle: style})} 
-                    className={`p-5 rounded-2xl border-2 text-left transition-all font-black uppercase tracking-widest text-[11px] ${profile.dietStyle === style ? 'border-emerald-500 bg-emerald-500/10 text-white shadow-[0_0_20px_rgba(16,185,129,0.2)]' : 'border-slate-800 text-slate-500 hover:border-slate-700'}`}
-                  >
-                    {style}
-                  </button>
-                ))}
-              </div>
-              <Button variant="secondary" className="w-full mt-10 py-5" onClick={next}>Aceptar Estilo</Button>
-            </Card>
-          )}
-
-          {step === 4 && (
-            <Card className="animate-in slide-in-from-bottom-8">
-              <div className="flex items-center gap-2 mb-4 text-amber-500">
-                <MapPin size={20} />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em]">Region</span>
-              </div>
-              <h2 className="text-4xl font-black mb-6 text-white tracking-tighter uppercase italic">Zona Regional</h2>
-              <div className="grid gap-4">
-                {Object.values(ArgentineRegion).map(region => (
-                  <button 
-                    key={region} 
-                    onClick={() => setProfile({...profile, region})} 
-                    className={`p-5 rounded-2xl border-2 text-left transition-all font-black uppercase tracking-widest text-[11px] ${profile.region === region ? 'border-amber-500 bg-amber-500/10 text-white shadow-[0_0_20px_rgba(245,158,11,0.2)]' : 'border-slate-800 text-slate-500 hover:border-slate-700'}`}
-                  >
-                    {region}
-                  </button>
-                ))}
-              </div>
-              <Button variant="cyan" className="w-full mt-10 py-5" onClick={next}>Establecer Zona</Button>
-            </Card>
-          )}
-
-          {step === 5 && (
-            <Card className="animate-in slide-in-from-bottom-8">
-              <div className="flex items-center gap-2 mb-4 text-cyan-400">
-                <Scan size={20} />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em]">Bio-Scan</span>
-              </div>
-              <h2 className="text-4xl font-black mb-4 text-white tracking-tighter uppercase italic">Carga Visual</h2>
-              <p className="text-slate-500 text-[10px] font-black uppercase mb-8 tracking-widest">Sube al menos 1 foto para análisis de % grasa.</p>
-              
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                {profile.avatarImages.map((img, idx) => (
-                  <div key={idx} className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
-                    <img src={img} className="w-full h-full object-cover grayscale contrast-125" />
-                    <button 
-                      onClick={() => setProfile(p => ({...p, avatarImages: p.avatarImages.filter((_, i) => i !== idx)}))} 
-                      className="absolute top-2 right-2 p-2 bg-slate-950/80 text-rose-500 rounded-xl hover:bg-rose-600 hover:text-white transition-all"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+              <div className="onboarding-card shadow-lg">
+                {/* STEP 0: IDIOMA */}
+                {step === 0 && (
+                  <div className="text-center">
+                    <div className="mb-4">
+                      <Badge>Módulo Lenguaje</Badge>
+                    </div>
+                    <h2 className="h4 mb-4 fw-black text-white text-uppercase italic text-tactical">¿Cómo prefieres que te hable?</h2>
+                    <div className="d-flex flex-column gap-2 text-start">
+                      {Object.values(Language).map((lang) => (
+                        <div 
+                          key={lang} 
+                          onClick={() => setProfile({...profile, language: lang})} 
+                          className={`futuristic-option ${profile.language === lang ? 'active' : ''}`}
+                        >
+                          <span className="option-text">{lang}</span>
+                          <div className="option-indicator"></div>
+                        </div>
+                      ))}
+                    </div>
+                    <Button variant="cyan" className="mt-5 w-100 py-3" onClick={next}>Continuar Enlace</Button>
                   </div>
-                ))}
-                {profile.avatarImages.length < 4 && (
-                  <label className="aspect-[3/4] border-2 border-dashed border-slate-800 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/40 hover:bg-cyan-500/[0.02] transition-all group">
-                    <Plus className="text-slate-700 group-hover:text-cyan-500 group-hover:scale-110 transition-all" size={32} />
-                    <span className="text-[9px] font-black text-slate-700 uppercase tracking-widest mt-2">Añadir</span>
-                    <input type="file" className="hidden" accept="image/*" multiple onChange={handleFileUpload} />
-                  </label>
+                )}
+
+                {/* STEP 1: NOMBRE */}
+                {step === 1 && (
+                  <div>
+                    <div className="text-center mb-5">
+                      <Badge className="mb-3">Identificación</Badge>
+                      <h2 className="h4 fw-black text-white text-uppercase italic text-tactical">Tu Nombre Operativo</h2>
+                    </div>
+                    <Input 
+                      label="NOMBRE COMPLETO" 
+                      value={profile.name} 
+                      onChange={v => setProfile({...profile, name: v})} 
+                      placeholder={`Ej: ${randomName}`} 
+                    />
+                    <Button variant="cyan" className="w-100 mt-2 py-3" onClick={next} disabled={!profile.name.trim()}>Vincular Identidad</Button>
+                  </div>
+                )}
+
+                {/* STEP 2: OBJETIVO */}
+                {step === 2 && (
+                  <div className="text-center">
+                    <div className="mb-4">
+                      <Badge>Misión</Badge>
+                    </div>
+                    <h2 className="h4 mb-4 fw-black text-white text-uppercase italic text-tactical">¿Cuál es tu objetivo?</h2>
+                    <div className="d-flex flex-column gap-2 text-start">
+                      {Object.values(UserGoal).map(goal => (
+                        <div 
+                          key={goal} 
+                          onClick={() => setProfile({...profile, goal})} 
+                          className={`futuristic-option ${profile.goal === goal ? 'active' : ''}`}
+                        >
+                          <span className="option-text">{goal}</span>
+                          <div className="option-indicator"></div>
+                        </div>
+                      ))}
+                    </div>
+                    <Button variant="cyan" className="mt-5 w-100 py-3" onClick={next}>Configurar Protocolo</Button>
+                  </div>
+                )}
+
+                {/* STEP 3: DIETA */}
+                {step === 3 && (
+                  <div className="text-center">
+                    <div className="mb-4">
+                      <Badge>Alimentación</Badge>
+                    </div>
+                    <h2 className="h4 mb-4 fw-black text-white text-uppercase italic text-tactical">Estilo Nutricional</h2>
+                    <div className="d-flex flex-column gap-2 text-start">
+                      {Object.values(DietStyle).map(s => (
+                        <div 
+                          key={s} 
+                          onClick={() => setProfile({...profile, dietStyle: s})} 
+                          className={`futuristic-option ${profile.dietStyle === s ? 'active' : ''}`}
+                        >
+                          <span className="option-text">{s}</span>
+                          <div className="option-indicator"></div>
+                        </div>
+                      ))}
+                    </div>
+                    <Button variant="cyan" className="mt-5 w-100 py-3" onClick={next}>Siguiente Paso</Button>
+                  </div>
+                )}
+
+                {/* STEP 4: REGIÓN */}
+                {step === 4 && (
+                  <div className="text-center">
+                    <div className="mb-4">
+                      <Badge>Geolocalización</Badge>
+                    </div>
+                    <h2 className="h4 mb-4 fw-black text-white text-uppercase italic text-tactical">¿En qué región estás?</h2>
+                    <div className="d-flex flex-column gap-2 text-start">
+                      {Object.values(ArgentineRegion).map(r => (
+                        <div 
+                          key={r} 
+                          onClick={() => setProfile({...profile, region: r})} 
+                          className={`futuristic-option ${profile.region === r ? 'active' : ''}`}
+                        >
+                          <span className="option-text">{r}</span>
+                          <div className="option-indicator"></div>
+                        </div>
+                      ))}
+                    </div>
+                    <Button variant="cyan" className="mt-5 w-100 py-3" onClick={next}>Continuar al Scan</Button>
+                  </div>
+                )}
+
+                {/* STEP 5: FOTOS */}
+                {step === 5 && (
+                  <div>
+                    <div className="text-center mb-5">
+                      <Badge className="mb-2">Bio-Vision</Badge>
+                      <h2 className="h4 fw-black text-white text-uppercase italic text-tactical">Scan Corporal</h2>
+                      <p className="text-dim small text-uppercase fw-bold opacity-60">Sube fotos para análisis de simetría.</p>
+                    </div>
+                    
+                    <div className="row g-3">
+                      {profile.avatarImages.map((img, idx) => (
+                        <div key={idx} className="col-4">
+                          <div className="position-relative overflow-hidden rounded-4 border border-info border-opacity-30 shadow-sm" style={{aspectRatio: '1/1'}}>
+                            <img src={img} className="w-100 h-100 object-fit-cover" alt="Scan" />
+                            <button 
+                              onClick={() => setProfile(p => ({...p, avatarImages: p.avatarImages.filter((_, i) => i !== idx)}))} 
+                              className="btn btn-danger position-absolute top-0 end-0 m-1 p-0 rounded-circle border-0 d-flex align-items-center justify-content-center shadow"
+                              style={{width: '26px', height: '26px', zIndex: 10}}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      {profile.avatarImages.length < 3 && (
+                        <div className="col-4">
+                          <div className="d-flex flex-column align-items-center justify-content-center bg-black bg-opacity-30 border border-dashed border-info border-opacity-30 rounded-4 w-100" style={{ aspectRatio: '1/1', position: 'relative' }}>
+                            <Camera size={30} className="text-info opacity-50 mb-2" />
+                            <span className="small text-info fw-bold opacity-50">SUBIR</span>
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              multiple 
+                              onChange={handleFileUpload} 
+                              style={{ position: 'absolute', width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <Button variant="cyan" className="mt-5 w-100 py-3" onClick={next} disabled={profile.avatarImages.length === 0}>
+                      Analizar Composición <ChevronRight size={18} className="ms-2" />
+                    </Button>
+                  </div>
+                )}
+
+                {/* STEP 6: MÉTRICAS FINALES */}
+                {step === 6 && (
+                   <div className="animate-in fade-in">
+                      <div className="text-center mb-5">
+                        <Badge>Métricas Finales</Badge>
+                        <h2 className="h4 fw-black text-white text-uppercase italic text-tactical">Parámetros de Usuario</h2>
+                      </div>
+                      <div className="row g-3">
+                        <div className="col-6">
+                          <Input label="EDAD" type="number" value={profile.age} onChange={v => setProfile({...profile, age: parseInt(v)||0})} />
+                        </div>
+                        <div className="col-6">
+                          <Input label="PESO (KG)" type="number" value={profile.weight} onChange={v => setProfile({...profile, weight: parseInt(v)||0})} />
+                        </div>
+                      </div>
+                      <Button variant="cyan" className="mt-5 w-100 py-3" onClick={finalize}>
+                        Sincronizar Protocolo Alpha
+                      </Button>
+                   </div>
                 )}
               </div>
-              <Button variant="cyan" className="w-full py-5" onClick={next}>Continuar con Fotos</Button>
-            </Card>
+            </div>
           )}
-
-          {step === 6 && (
-            <Card className="animate-in slide-in-from-bottom-8">
-              <h2 className="text-4xl font-black mb-10 text-white tracking-tighter uppercase italic">Biometría</h2>
-              <div className="grid grid-cols-2 gap-6">
-                <Input label="Edad Cronológica" type="number" value={profile.age} onChange={v => setProfile({...profile, age: parseInt(v) || 0})} />
-                <Input label="Peso Actual (KG)" type="number" value={profile.weight} onChange={v => setProfile({...profile, weight: parseInt(v) || 0})} />
-              </div>
-              <Button variant="cyan" className="w-full mt-12 py-6 shadow-[0_0_40px_rgba(34,211,238,0.3)]" onClick={finalize}>
-                 Sincronizar Bio-Identidad
-              </Button>
-            </Card>
-          )}
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 };

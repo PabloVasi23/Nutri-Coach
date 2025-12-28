@@ -37,8 +37,9 @@ const AdminVerification: React.FC = () => {
           <p className="text-slate-500 mt-2">Manage evidence-based library and validate supplement claims.</p>
         </div>
         <div className="flex gap-2">
-           <Badge color="green">Editor Mode</Badge>
-           <Badge color="blue">GDPR Compliant</Badge>
+           {/* Fixed: Badge component does not accept 'color' prop. Using 'className' for custom color styling instead. */}
+           <Badge className="bg-emerald-100 text-emerald-700">Editor Mode</Badge>
+           <Badge className="bg-blue-100 text-blue-700">GDPR Compliant</Badge>
         </div>
       </header>
 
@@ -84,7 +85,8 @@ const AdminVerification: React.FC = () => {
                     <h2 className="text-2xl font-bold text-slate-900">{result.title}</h2>
                     <p className="text-slate-500 font-medium">{result.source} • {result.year}</p>
                   </div>
-                  <Badge color={result.evidenceLevel === 'A' ? 'green' : 'orange'}>
+                  {/* Fixed: Badge component does not support 'color' prop. Using 'className' with conditional logic for dynamic styling. */}
+                  <Badge className={result.evidenceLevel === 'A' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'}>
                     Level {result.evidenceLevel} Evidence
                   </Badge>
                 </div>

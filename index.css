@@ -1,0 +1,272 @@
+:root {
+  /* PALETA TÁCTICA 2025 - EXCLUSIVO NOCTURNO */
+  --bg-main: #020408;
+  --bg-card: #0d1117;
+  --bg-card-hover: #161b22;
+  --cyan-primary: #00f2ff;
+  --cyan-glow: rgba(0, 242, 255, 0.6);
+  --cyan-soft: rgba(0, 242, 255, 0.1);
+  --text-main: #ffffff;
+  --text-dim: #94a3b8;
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --radius-pill: 100px;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* TÍTULO PRINCIPAL - BODY SCAN IA COACH */
+.hero-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-style: italic;
+  letter-spacing: -0.04em;
+  color: #e2e8f0; /* Gris muy claro/plata */
+  animation: cyberPulse 4s infinite ease-in-out;
+}
+
+.hero-title span {
+  color: var(--cyan-primary);
+  text-shadow: 0 0 20px var(--cyan-glow);
+}
+
+@keyframes cyberPulse {
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 0px var(--cyan-glow)); }
+  50% { filter: brightness(1.2) drop-shadow(0 0 15px var(--cyan-glow)); }
+}
+
+/* BOTONES PILL-GLOW */
+.btn-initialize {
+  background: var(--cyan-primary) !important;
+  color: #000000 !important;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  padding: 16px 32px;
+  border-radius: var(--radius-pill);
+  border: none;
+  text-transform: uppercase;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 25px var(--cyan-glow);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.btn-initialize:hover:not(:disabled) {
+  transform: translateY(-3px);
+  filter: brightness(1.1);
+  box-shadow: 0 12px 35px var(--cyan-glow);
+}
+
+.btn-tactical-outline {
+  background: transparent !important;
+  border: 2px solid var(--cyan-primary) !important;
+  color: var(--cyan-primary) !important;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  padding: 14px 32px;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* OPCIONES DE SELECCIÓN */
+.futuristic-option {
+  background: var(--bg-card-hover);
+  border: 1.5px solid var(--border-glass);
+  border-radius: var(--radius-pill);
+  padding: 18px 30px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-main) !important;
+  text-decoration: none !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.futuristic-option:hover {
+  border-color: var(--cyan-primary);
+  transform: translateX(8px);
+  background: var(--bg-card);
+}
+
+.futuristic-option.active {
+  background: var(--cyan-primary) !important;
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 25px var(--cyan-glow);
+}
+
+.futuristic-option.active .option-text { color: #000000 !important; }
+.futuristic-option.active .option-indicator { background: #000000 !important; border-color: #000000; }
+
+.option-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.option-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border-glass);
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+/* ESTILO UNIFICADO DE FILAS */
+.exercise-row {
+  background: rgba(255,255,255,0.03);
+  border-left: 4px solid var(--cyan-primary);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  border-right: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.text-coach-assessment {
+  color: var(--text-main) !important;
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+.badge-tactical {
+  background: var(--cyan-primary);
+  color: #000;
+  font-weight: 900;
+  font-size: 0.65rem;
+  padding: 5px 12px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+/* CHAT WIDGET & BUBBLES */
+.chat-history {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-history::-webkit-scrollbar { width: 6px; }
+.chat-history::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+.chat-history::-webkit-scrollbar-thumb { background: var(--cyan-primary); border-radius: 10px; }
+
+.chat-bubble {
+  padding: 12px 16px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  max-width: 85%;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  position: relative;
+}
+
+.bubble-coach {
+  background: var(--bg-card-hover) !important;
+  color: #ffffff !important;
+  border-bottom-left-radius: 4px;
+  align-self: flex-start;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.bubble-user {
+  background: var(--cyan-primary) !important;
+  color: #000000 !important;
+  border-bottom-right-radius: 4px;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.chat-widget {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 380px;
+  height: 500px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 100px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: 24px;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.7);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-widget.minimized {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--cyan-primary);
+  box-shadow: 0 0 30px var(--cyan-glow);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+.scanline {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 2px;
+  background: var(--cyan-primary);
+  opacity: 0.08;
+  z-index: 10000;
+  pointer-events: none;
+  animation: scan 8s linear infinite;
+}
+
+@keyframes scan {
+  from { top: -5%; }
+  to { top: 105%; }
+}
+
+.tactical-input {
+  background: rgba(255,255,255,0.08) !important;
+  border: 1.5px solid var(--border-glass) !important;
+  color: var(--text-main) !important;
+  border-radius: var(--radius-pill) !important;
+  padding: 14px 25px !important;
+  font-weight: 600;
+}
+
+.onboarding-card {
+  background: var(--bg-card);
+  border-radius: 28px;
+  padding: 35px;
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  max-width: 550px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .onboarding-card { padding: 25px 20px; border-radius: 24px; width: 100%; }
+  .display-1 { font-size: 2.8rem; }
+}
